@@ -6,21 +6,25 @@ nav_order: 8
 
 # Deployment
 
-This section explains what operations are needed to make the software work on the users' machine(s)
+Havij Nutrition is a local Streamlit application that runs on the user’s machine with minimal setup. It persists data in a local SQLite file and requires no dedicated server infrastructure, aside from outbound access to Open Food Facts for barcode lookups. A hosted demo is available at https://havij-nutrition.streamlit.app/, but the Streamlit Cloud runtime uses ephemeral storage so user data does not persist across restarts.
 
 ## User installation
 
-- Does the user need to install something on their machine(s) to run your software?
-    * If yes, what is it?
-    * If yes, how to install it? (report the commands to run)
-    * If yes, how to configure it? (e.g. creating configuration files, setting environment variables, etc.)
+- **Yes.** End users need a local Python runtime and the project dependencies.
+    * **Prerequisites**: Python 3.10+ and Poetry (recommended for reproducible installs).
+    * **Install dependencies (from source)**:
+        + `poetry install`
+    * **Alternative install (PyPI)**:
+        + `pip install havij_nutrition` (useful for inspection or reuse, but the Streamlit UI is still started from the repo entrypoint below).
+    * **Run the app**:
+        + `poetry run streamlit run havij/presentation/streamlit_app.py`
+    * **Configuration**:
+        + `DB_PATH` (optional) sets the SQLite file location. Default is `data/app.sqlite`. The app creates the parent directory automatically, so only write permissions are needed.
+        + The app makes outbound HTTPS requests to Open Food Facts (`https://world.openfoodfacts.net`); offline use limits barcode lookups but manual entry still works.
 
 ## Server-side installation
 
-- Does your software need to be installed on a server?
-    * If yes, what is it?
-    * If yes, how to install it?
-    * If yes, how to configure it?
+- **Not required.** The application is designed to run locally as a Streamlit app on the user's machine, with SQLite for persistence.
+- **Optional hosting**: If you want a shared/remote instance, install the same Python/Poetry dependencies on the server and run Streamlit with the same command as above. Ensure the server can reach Open Food Facts and that `DB_PATH` points to persistent storage. The Streamlit Cloud demo is intentionally configured as a lightweight showcase and does not retain user data between restarts.
 
-- Does your software need to further software to be installed on the server? (e.g. a database, a message broker, etc.)
-    * same questions as above
+- **No additional server software required.** Storage uses a local SQLite file and there are no message brokers or separate database services.

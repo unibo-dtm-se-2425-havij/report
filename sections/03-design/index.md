@@ -6,94 +6,131 @@ nav_order: 4
 
 # Design
 
-This chapter explains the strategies used to meet the requirements identified in the analysis. 
+This chapter describes how the design choices map the requirements into a small, maintainable Streamlit app. The goal is a clear separation between UI, application logic, and infrastructure so the code stays easy to test and extend.
 
-Ideally, the design should be the same, regardless of the technological choices made during the implementation phase.
+## Architecture
 
-> You can re-order the sections as you prefer, but all the sections must be present in the end
+- Architectural style: layered architecture (presentation, application, domain, infrastructure). This fits a small Streamlit app with clear separation of UI, business rules, and external adapters, and keeps domain logic independent from framework and IO.
+- Why not others: event-based or shared-dataspace patterns add complexity without benefit for a local, synchronous app; hexagonal/ports-adapters is partially adopted via Protocol ports but full inversion is unnecessary.
+- Structure: layered within a single process.
+  - Presentation: `havij/presentation/streamlit_app.py` (Streamlit UI, user interaction).
+  - Application services: `havij/application/services/*` (use cases, validation and orchestration).
+  - Domain: `havij/domain/model/*` and `havij/domain/rules.py` (core entities, value objects, invariants).
+  - Infrastructure: `havij/infrastructure/*` (SQLite persistence, Open Food Facts API adapter, config).
+- Responsibilities:
+  - Streamlit UI: Collects input, renders tables/metrics, manages session state, and calls services.
+  - Application services: Orchestrate use cases and validation (add/remove meal entries, lookup product, signup/login).
+  - Domain model: Encapsulates business data and calculations (nutrient totals, scaling, validation rules).
+  - Infrastructure: Persist and load data from SQLite, call the Open Food Facts API, map external data into domain objects.
 
-## Architecture 
-
-- Which architectural style (e.g. layered, object-based, event-based, shared dataspace)? Why? Why not the others?
-- Provide details about the actual architecture (e.g. N-tier, hexagonal, etc.) you are going to adopt. Motivate your choice.
-- Provide a high-level overview of the architecture, possibly with a diagram
-- Describe the responsibilities of each architectural component
-
-> UML Components diagrams are welcome here
+![Layered architecture diagram](../../pictures/uml-components.png)
 
 ## Infrastructure (mostly applies to distributed systems)
 
-- Are there **infrastructural components** that need to be introduced? Which and **how many** of each?
-    - e.g. **clients**, **servers**, **load balancers**, **caches**, **databases**, **message brokers**, **queues**, **workers**, **proxies**, **firewalls**, **CDNs**, etc.
-- How do components **distribute** over the network? **Where** are they located?
-    - e.g. do servers / brokers / databases / etc. sit on the same machine? on the same network? on the same datacenter? on the same continent?
-- How do components **find** each other?
-    - How to **name** components?
-    - e.g. **DNS**, **service discovery**, **load balancing**, etc.
+- This system is not distributed; it runs as a single Streamlit process on one machine.
+- Components (local):
+  - UI + application server: Streamlit app in a single Python process.
+  - Database: SQLite file on the same machine (`data/app.sqlite` by default).
+- External dependency:
+  - Open Food Facts API accessed over HTTPS (outbound only).
+- Discovery/naming:
+  - SQLite location via `DB_PATH` environment variable (`havij/infrastructure/config.py`).
+  - Open Food Facts base URL is configured in `OpenFoodFactsClient`.
+  - No service discovery, load balancing, or inter-service networking needed.
 
-> UML deployment diagrams are welcome here
 
 ## Modelling
 
 ### Domain driven design (DDD) modelling
 
-- Which are the bounded contexts of your domain? 
-- Which are domain concepts (entities, value objects, aggregates, etc.) for each context?
-- Are there repositories, services, or factories for each/any domain concept?
-- What are the relavant domain events in each context?
+- Bounded contexts:
+  - Meal logging: capture meal entries, compute daily totals.
+  - Product lookup: fetch product data by barcode.
+  - User accounts: signup and authentication.
+- Domain concepts:
+  - Entities: `MealEntry` (entry_id), `DayLog` (day aggregate), `UserProfile` (user_id), `Product` (barcode).
+  - Value objects: `Nutrients` (kcal/protein/carbs/fat).
+  - Aggregate: `DayLog` is the aggregate root containing `MealEntry` and enforces basic invariants (e.g., grams > 0).
+- Repositories/services:
+  - Repositories (ports): `DayLogRepository`, `UserRepository`.
+  - Application services: `MealService`, `ProductService`, `UserService` orchestrate use cases.
+  - Domain services: none; domain rules are simple validation helpers in `havij/domain/rules.py`.
+  - External catalog: `ProductCatalog` port implemented by `OpenFoodFactsCatalog`.
+- Domain events:
+  - None explicitly modeled; operations are synchronous with direct persistence.
 
-> Context map diagrams are welcome here
+![DDD class diagram](../../pictures/uml-ddd.png)
 
 ### Object-oriented modelling
 
-- What are the main data types (e.g. classes) of the system?
-- What are the main attributes and methods of each data type?
-- How do data types relate to each other?
+- Main data types:
+  - `MealEntry`: `entry_id`, `timestamp`, `barcode`, `product_name`, `grams`, `nutrients`.
+  - `DayLog`: `day`, `entries`, methods `add_entry`, `remove_entry`, `total_nutrients`.
+  - `Nutrients`: `kcal`, `protein_g`, `carbs_g`, `fat_g`, methods `scale`, `zero`.
+  - `Product`: `barcode`, `name`, `nutrients_per_100g`, method `nutrients_for_grams`.
+  - `UserProfile`: `user_id`, `username`, `created_at`.
+  - Services: `MealService`, `ProductService`, `UserService` orchestrate use cases.
+- Relationships:
+  - `DayLog` contains many `MealEntry` objects.
+  - `MealEntry` embeds `Nutrients` for the consumed amount.
+  - `Product` embeds `Nutrients` for per-100g values.
+  - Services depend on repository/catalog interfaces (ports).
+  - `MealService` creates `MealEntry` instances and persists them by loading/updating a `DayLog` via `DayLogRepository`.
 
-> UML class diagrams are welcome here
+
+![OO class diagram](../../pictures/uml-classes.png)
 
 ### In case of a distributed system
 
-- How do the domain concepts map to the architectural or infrastuctural components?
-    + i.e. which architectural/component is responsible for which domain concept?
-    + are there data types which are required onto multiple components? (e.g. messages being exchanged between components)
+- Not a distributed system; app runs as a single process with an external API call.
 
-- What are the domain concepts or data types which represent the state of the distributed system?
-    + e.g. state of a video game on central server, while inputs/representations on clients
-    + e.g. where to store messages in an instant-messaging app? for how long?
-
-- Are there domain concepts or data types which represent messages being exchanged between components?
-    + e.g. messages between clients and servers, messages between servers, messages between clients
 
 ## Interaction
 
-- How do components *communicate*? *When*? *What*?
+- Interaction flow:
+  - UI → services: Streamlit handlers call application services for login, barcode lookup, and meal logging.
+  - Services → infrastructure: `ProductService` calls `ProductCatalog` (Open Food Facts adapter), while `MealService` and `UserService` call repositories for SQLite persistence.
+- Pattern:
+  - Simple synchronous request/response with in-process calls and an external HTTP request for product lookup.
 
-- Which **interaction patterns** do they enact?
+![Interaction diagram](../../pictures/uml-sequence-1.png)
 
-> UML sequence diagrams are welcome here
+
+![Interaction diagram](../../pictures/uml-sequence-2.png)
+
+
+![Interaction diagram](../../pictures/uml-sequence-3.png)
+
+
+![Interaction diagram](../../pictures/uml-sequence-4.png)
+
+
 
 ## Behaviour
 
-- How does **each** component *behave* individually (e.g., in *response* to *events* or messages)?
-    + Some components may be *stateful*, others *stateless*
+- Component behavior:
+  - Streamlit UI maintains session state (current user, lookup values) and renders logs/totals.
+  - `MealService` validates grams, scales nutrients, creates `MealEntry`, updates `DayLog`, and computes daily/weekly totals.
+  - `UserService` handles signup, hashes passwords with PBKDF2, and authenticates via constant-time comparison.
+  - `ProductService` validates barcodes and fetches product/nutrient data.
+  - Application services are stateless; repositories manage persistence through a shared SQLite connection.
+  - The Open Food Facts client holds an HTTP session but no domain state.
+- State updates:
+  - Only services mutate state via repositories; UI remains stateless aside from session variables.
+  - `MealService.assign_unowned_entries` links existing meal entries to the first created user.
 
-- Which components are in charge of updating the **state** of the system? *When*? *How*?
-
-> UML state diagrams or activity diagrams are welcome here
 
 ## Data-related aspects (in case persistent storage is needed)
 
-- Is there any data that needs to be stored?
-    - *What* data? *Where*? *Why*?
-
-- How should **persistent data** be **stored**? Why?
-    - e.g., relations, documents, key-value, graph, etc.
-
-- Which components perform queries on the database?
-    - *When*? *Which* queries? *Why*?
-    - Concurrent read? Concurrent write? Why?
-
-- Is there any data that needs to be shared between components?
-    - *Why*? *What* data?
-
+- Stored data:
+  - Users (username, password hash, salt, created_at).
+  - Meal entries (day, timestamp, barcode, product name, grams, nutrients).
+  - Stored in SQLite (`data/app.sqlite` by default) for local persistence.
+- Storage model:
+  - Relational tables: `users`, `meal_entries`. SQLite is lightweight and sufficient for a single-user local app.
+- Database access:
+  - `SqliteUserRepository` queries by username or user_id, and inserts new users.
+  - `SqliteDayLogRepository` loads entries by day/user (`SELECT ... WHERE day AND user_id`) , deletes and re-inserts for save.
+  - Concurrency is minimal (single-process Streamlit), so no special locking needed.
+- Shared data:
+  - Only the SQLite file is shared across services within the same process; no cross-process sharing.
