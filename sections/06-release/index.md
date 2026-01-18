@@ -6,26 +6,41 @@ nav_order: 7
 
 # Release
 
-- Which and how many artefacts are produced from your project's codebase?
-- Onto which repositories (e.g. PyPI, Docker Hub, GitHub Packages, NPM etc.) are they released? Why?
-- How are they released (e.g. manually, automatically, etc.)?
-   + report the configuration steps and commands to run to release the artefacts
+## Artefacts and release targets
+
+- This project is a local Streamlit application rather than a library meant for general distribution. Even so, it is packaged as a single Python artefact (`havij_nutrition`), and each release builds an sdist (`.tar.gz`) and a wheel (`.whl`) via Poetry in `dist/`.
+- Automatic publishing to PyPI is configured to demonstrate a full release workflow (versioning, tagging, build, and publication). The same `dist/*` files are attached to GitHub Releases for traceability. A TestPyPI target (`pypi-test`) is available for test publications.
+
+## Release automation and commands
+
+- Releases are automated by GitHub Actions. `.github/workflows/check.yml` runs the quality gates and then calls `.github/workflows/deploy.yml`; the deploy job runs `npx semantic-release` and performs a real publish only on `main`/`master` (other branches are dry runs).
+- `release.config.mjs` configures `semantic-release` to:
+   + compute the next version from Conventional Commits,
+   + run `poetry version -- <nextRelease.version>`,
+   + run `poetry publish --build` (or `--repository pypi-test`),
+   + update `CHANGELOG.md`, create the git tag, and publish a GitHub Release with `dist/*` assets.
+- Required secrets: `PYPI_USERNAME` (usually `__token__`), `PYPI_PASSWORD` (PyPI API token), and `RELEASE_TOKEN` (exported as `GITHUB_TOKEN` for GitHub releases).
+
+### Manual/CLI release (same steps as CI)
+
+```bash
+poetry install
+npm install
+PYPI_USERNAME=__token__ PYPI_PASSWORD=... GITHUB_TOKEN=... npx semantic-release --branches main
+```
 
 ## Choice of the license
 
-- Which license did you choose for your artefacts? Why?
-- Which license did you choose for your code? Why?
+- Code and artefacts are released under the Apache 2.0 License (see `LICENSE` and `pyproject.toml`). It is permissive, allows commercial reuse and redistribution, and includes an explicit patent grant while requiring attribution and a license notice.
 
 ## Choice of the versioning schema
 
-- Which versioning schema (e.g. date-based versioning, SemVer, etc.) did you choose for your artefacts? Why?
-   + how does the versioning schema work?
+- The project follows SemVer (MAJOR.MINOR.PATCH) via `semantic-release`, using Conventional Commits to infer the version bump.
+- `feat:` increments MINOR, `fix:` increments PATCH, and `BREAKING CHANGE:` or `!` in the type increments MAJOR. `semantic-release` writes the new version to `pyproject.toml`, updates `CHANGELOG.md`, and tags the release (e.g., `1.2.0`).
+- All artefacts share the same version: the PyPI package version, the git tag, and the GitHub Release name are aligned by `semantic-release`.
 
-- In case of multiple artefacts, are the version numbers aligned or each artefact has its own versioning pace? Why?
+### Creating a new version
 
-- Describe when and how to create a new version of the artefacts in your project
-   + e.g. when to increment the major, minor, and patch version numbers
-   + e.g. how to create a new release branch
-   + e.g. how to create a new tag
-   + e.g. how to create a new release on GitHub
-
+1. Work on `feature/*` branches off `dev` (git-flow). When ready, optionally use a `release/*` branch for stabilization.
+2. Ensure commits follow Conventional Commits and CI passes.
+3. Merge into `main`/`master`. This triggers the deploy workflow, which tags the release, updates `CHANGELOG.md` and `pyproject.toml`, and publishes to PyPI.
