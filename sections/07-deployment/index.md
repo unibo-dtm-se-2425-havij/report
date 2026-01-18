@@ -6,7 +6,7 @@ nav_order: 8
 
 # Deployment
 
-Havij Nutrition is a local Streamlit application that runs on the user’s machine with minimal setup. It persists data in a local SQLite file and requires no dedicated server infrastructure, aside from outbound access to Open Food Facts for barcode lookups.
+Havij Nutrition is a local Streamlit application that runs on the user’s machine with minimal setup. It persists data in a local SQLite file and requires no dedicated server infrastructure, aside from outbound access to Open Food Facts for barcode lookups. A hosted demo is available at https://havij-nutrition.streamlit.app/, but the Streamlit Cloud runtime uses ephemeral storage so user data does not persist across restarts.
 
 ## User installation
 
@@ -25,6 +25,6 @@ Havij Nutrition is a local Streamlit application that runs on the user’s machi
 ## Server-side installation
 
 - **Not required.** The application is designed to run locally as a Streamlit app on the user's machine, with SQLite for persistence.
-- **Optional hosting**: If you want a shared/remote instance, install the same Python/Poetry dependencies on the server and run Streamlit with the same command as above. Ensure the server can reach Open Food Facts and that `DB_PATH` points to persistent storage.
+- **Optional hosting**: If you want a shared/remote instance, install the same Python/Poetry dependencies on the server and run Streamlit with the same command as above. Ensure the server can reach Open Food Facts and that `DB_PATH` points to persistent storage. The Streamlit Cloud demo is intentionally configured as a lightweight showcase and does not retain user data between restarts.
 
 - **No additional server software required.** Storage uses a local SQLite file and there are no message brokers or separate database services.
