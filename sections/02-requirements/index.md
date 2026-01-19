@@ -69,7 +69,7 @@ Acceptance criteria:
 Meal logs and user accounts must persist across app restarts.  
 Acceptance criteria:
 - After restarting the app, previously saved entries and accounts remain available.
-Note: this requirement applies to local or self-hosted deployments with persistent storage; the Streamlit Cloud demo uses ephemeral storage and does not retain user data between restarts.
+- **Note:** this requirement applies to local or self-hosted deployments with persistent storage; the Streamlit Cloud demo uses ephemeral storage and does not retain user data between restarts.
 
 **NFR2. Password safety**  
 Passwords must not be stored in plain text.  
