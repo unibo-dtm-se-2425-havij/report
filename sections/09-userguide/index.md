@@ -44,7 +44,10 @@ The app will open on `http://localhost:8501` by default.
 
 If you create the first account in a new database, any existing unowned meal entries (if any were created before users existed) are automatically assigned to you.
 
-![Login/Sign up sidebar](../../pictures/login.png)
+<figure class="report-figure">
+  <img src="../../pictures/login.png" alt="Login/Sign up sidebar" loading="lazy">
+  <figcaption>Login/Sign up sidebar.</figcaption>
+</figure>
 
 ## Log Meal tab
 
@@ -64,7 +67,10 @@ Notes:
 - Barcodes must contain digits only. Non-numeric input will show an error.
 - If a barcode is not found or the API is unavailable, the lookup will show an error and you can enter values manually.
 
-![Log Meal tab](../../pictures/log_meal.png)
+<figure class="report-figure">
+  <img src="../../pictures/log_meal.png" alt="Log Meal tab" loading="lazy">
+  <figcaption>Log Meal tab.</figcaption>
+</figure>
 
 ## Today tab
 
@@ -77,7 +83,10 @@ Use this tab to review and manage entries for a specific day.
 
 If you remove an entry, refresh the page or switch tabs to see updates.
 
-![Today tab](../../pictures/today.png)
+<figure class="report-figure">
+  <img src="../../pictures/today.png" alt="Today tab" loading="lazy">
+  <figcaption>Today tab.</figcaption>
+</figure>
 
 ## Last 7 Days tab
 
@@ -87,18 +96,23 @@ Use this tab to see your recent trends.
 - **Table**: shows totals per day for kcal and macros.
 - **Line chart**: visualizes the same totals over time.
 
-![Last 7 Days tab](../../pictures/7day.png)
+<figure class="report-figure">
+  <img src="../../pictures/7day.png" alt="Last 7 Days tab" loading="lazy">
+  <figcaption>Last 7 Days tab.</figcaption>
+</figure>
 
 ## Profile tab
 
 Shows your username and the UTC timestamp of when your account was created.
 
-![Profile tab](../../pictures/account.png)
+<figure class="report-figure">
+  <img src="../../pictures/account.png" alt="Profile tab" loading="lazy">
+  <figcaption>Profile tab.</figcaption>
+</figure>
 
 ## Data storage and privacy
 
 - All data is stored in a local SQLite database (`data/app.sqlite` by default).
 - You can change the database location by setting the `DB_PATH` environment variable before starting the app.
 - Barcode lookups call the public Open Food Facts API; this requires network access.
-- The hosted demo at https://havij-nutrition.streamlit.app/ runs on ephemeral storage, so user accounts and meal logs do not persist across restarts.
-
+- The hosted demo at [https://havij-nutrition.streamlit.app/](https://havij-nutrition.streamlit.app/) runs on ephemeral storage, so user accounts and meal logs do not persist across restarts.

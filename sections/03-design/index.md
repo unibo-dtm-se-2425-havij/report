@@ -10,8 +10,8 @@ This chapter describes how the design choices map the requirements into a small,
 
 ## Architecture
 
-- Architectural style: layered architecture (presentation, application, domain, infrastructure). This fits a small Streamlit app with clear separation of UI, business rules, and external adapters, and keeps domain logic independent from framework and IO.
-- Why not others: event-based or shared-dataspace patterns add complexity without benefit for a local, synchronous app; hexagonal/ports-adapters is partially adopted via Protocol ports but full inversion is unnecessary.
+- Architectural style: **layered architecture** (presentation, application, domain, infrastructure). This fits a small Streamlit app with clear separation of UI, business rules, and external adapters, and keeps domain logic independent from framework and IO.
+- Why not others: event-based or shared-dataspace patterns add complexity without benefit for a local, synchronous app; **hexagonal/ports-adapters** is partially adopted via Protocol ports but full inversion is unnecessary.
 - Structure: layered within a single process.
   - Presentation: `havij/presentation/streamlit_app.py` (Streamlit UI, user interaction).
   - Application services: `havij/application/services/*` (use cases, validation and orchestration).
@@ -23,7 +23,10 @@ This chapter describes how the design choices map the requirements into a small,
   - Domain model: Encapsulates business data and calculations (nutrient totals, scaling, validation rules).
   - Infrastructure: Persist and load data from SQLite, call the Open Food Facts API, map external data into domain objects.
 
-![Layered architecture diagram](../../pictures/uml-components.png)
+<figure class="report-figure">
+  <img src="../../pictures/uml-components.png" alt="Layered architecture diagram" loading="lazy">
+  <figcaption>Layered architecture diagram.</figcaption>
+</figure>
 
 ## Infrastructure (mostly applies to distributed systems)
 
@@ -44,22 +47,25 @@ This chapter describes how the design choices map the requirements into a small,
 ### Domain driven design (DDD) modelling
 
 - Bounded contexts:
-  - Meal logging: capture meal entries, compute daily totals.
-  - Product lookup: fetch product data by barcode.
-  - User accounts: signup and authentication.
+  - **Meal logging:** capture meal entries, compute daily totals.
+  - **Product lookup:** fetch product data by barcode.
+  - **User accounts:** signup and authentication.
 - Domain concepts:
-  - Entities: `MealEntry` (entry_id), `DayLog` (day aggregate), `UserProfile` (user_id), `Product` (barcode).
-  - Value objects: `Nutrients` (kcal/protein/carbs/fat).
-  - Aggregate: `DayLog` is the aggregate root containing `MealEntry` and enforces basic invariants (e.g., grams > 0).
+  - **Entities:** `MealEntry` (entry_id), `DayLog` (day aggregate), `UserProfile` (user_id), `Product` (barcode).
+  - **Value objects:** `Nutrients` (kcal/protein/carbs/fat).
+  - **Aggregate:** `DayLog` is the aggregate root containing `MealEntry` and enforces basic invariants (e.g., grams > 0).
 - Repositories/services:
-  - Repositories (ports): `DayLogRepository`, `UserRepository`.
-  - Application services: `MealService`, `ProductService`, `UserService` orchestrate use cases.
-  - Domain services: none; domain rules are simple validation helpers in `havij/domain/rules.py`.
-  - External catalog: `ProductCatalog` port implemented by `OpenFoodFactsCatalog`.
+  - **Repositories (ports):** `DayLogRepository`, `UserRepository`.
+  - **Application services:** `MealService`, `ProductService`, `UserService` orchestrate use cases.
+  - **Domain services:** none; domain rules are simple validation helpers in `havij/domain/rules.py`.
+  - **External catalog:** `ProductCatalog` port implemented by `OpenFoodFactsCatalog`.
 - Domain events:
   - None explicitly modeled; operations are synchronous with direct persistence.
 
-![DDD class diagram](../../pictures/uml-ddd.png)
+<figure class="report-figure">
+  <img src="../../pictures/uml-ddd.png" alt="DDD class diagram" loading="lazy">
+  <figcaption>DDD class diagram.</figcaption>
+</figure>
 
 ### Object-oriented modelling
 
@@ -78,7 +84,10 @@ This chapter describes how the design choices map the requirements into a small,
   - `MealService` creates `MealEntry` instances and persists them by loading/updating a `DayLog` via `DayLogRepository`.
 
 
-![OO class diagram](../../pictures/uml-classes.png)
+<figure class="report-figure">
+  <img src="../../pictures/uml-classes.png" alt="OO class diagram" loading="lazy">
+  <figcaption>OO class diagram.</figcaption>
+</figure>
 
 ### In case of a distributed system
 
@@ -93,16 +102,28 @@ This chapter describes how the design choices map the requirements into a small,
 - Pattern:
   - Simple synchronous request/response with in-process calls and an external HTTP request for product lookup.
 
-![Interaction diagram](../../pictures/uml-sequence-1.png)
+<figure class="report-figure">
+  <img src="../../pictures/uml-sequence-1.png" alt="Interaction diagram" loading="lazy">
+  <figcaption>Interaction diagram.</figcaption>
+</figure>
 
 
-![Interaction diagram](../../pictures/uml-sequence-2.png)
+<figure class="report-figure">
+  <img src="../../pictures/uml-sequence-2.png" alt="Interaction diagram" loading="lazy">
+  <figcaption>Interaction diagram.</figcaption>
+</figure>
 
 
-![Interaction diagram](../../pictures/uml-sequence-3.png)
+<figure class="report-figure">
+  <img src="../../pictures/uml-sequence-3.png" alt="Interaction diagram" loading="lazy">
+  <figcaption>Interaction diagram.</figcaption>
+</figure>
 
 
-![Interaction diagram](../../pictures/uml-sequence-4.png)
+<figure class="report-figure">
+  <img src="../../pictures/uml-sequence-4.png" alt="Interaction diagram" loading="lazy">
+  <figcaption>Interaction diagram.</figcaption>
+</figure>
 
 
 
@@ -122,15 +143,15 @@ This chapter describes how the design choices map the requirements into a small,
 
 ## Data-related aspects (in case persistent storage is needed)
 
-- Stored data:
+- **Stored data:**
   - Users (username, password hash, salt, created_at).
   - Meal entries (day, timestamp, barcode, product name, grams, nutrients).
   - Stored in SQLite (`data/app.sqlite` by default) for local persistence.
-- Storage model:
+- **Storage model:**
   - Relational tables: `users`, `meal_entries`. SQLite is lightweight and sufficient for a single-user local app.
-- Database access:
+- **Database access:**
   - `SqliteUserRepository` queries by username or user_id, and inserts new users.
   - `SqliteDayLogRepository` loads entries by day/user (`SELECT ... WHERE day AND user_id`) , deletes and re-inserts for save.
   - Concurrency is minimal (single-process Streamlit), so no special locking needed.
-- Shared data:
+- **Shared data:**
   - Only the SQLite file is shared across services within the same process; no cross-process sharing.
