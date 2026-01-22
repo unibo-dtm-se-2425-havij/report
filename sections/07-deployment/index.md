@@ -10,7 +10,7 @@ Havij Nutrition is a local Streamlit application that runs on the user’s machi
 
 ## User installation
 
-- **Yes.** End users need a local Python runtime and the project dependencies.
+- End users need a local Python runtime and the project dependencies.
     * **Prerequisites**: Python 3.10+ and Poetry (recommended for reproducible installs).
     * **Install dependencies (from source)**:
         + `poetry install`
