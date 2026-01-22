@@ -25,7 +25,7 @@ This chapter describes how the design choices map the requirements into a small,
 
 <figure class="report-figure">
   <img src="../../pictures/uml-components.png" alt="Layered architecture diagram" loading="lazy">
-  <figcaption>Layered architecture diagram.</figcaption>
+  <figcaption>Components Diagram</figcaption>
 </figure>
 
 ## Infrastructure (mostly applies to distributed systems)
@@ -62,11 +62,6 @@ This chapter describes how the design choices map the requirements into a small,
 - Domain events:
   - None explicitly modeled; operations are synchronous with direct persistence.
 
-<figure class="report-figure">
-  <img src="../../pictures/uml-ddd.png" alt="DDD class diagram" loading="lazy">
-  <figcaption>DDD class diagram.</figcaption>
-</figure>
-
 ### Object-oriented modelling
 
 - Main data types:
@@ -86,7 +81,7 @@ This chapter describes how the design choices map the requirements into a small,
 
 <figure class="report-figure">
   <img src="../../pictures/uml-classes.png" alt="OO class diagram" loading="lazy">
-  <figcaption>OO class diagram.</figcaption>
+  <figcaption>Class Diagram</figcaption>
 </figure>
 
 ### In case of a distributed system
@@ -104,25 +99,25 @@ This chapter describes how the design choices map the requirements into a small,
 
 <figure class="report-figure">
   <img src="../../pictures/uml-sequence-1.png" alt="Interaction diagram" loading="lazy">
-  <figcaption>Interaction diagram.</figcaption>
+  <figcaption>Sequence Diagram - Barcode Lookup and Meal Entry</figcaption>
 </figure>
 
 
 <figure class="report-figure">
   <img src="../../pictures/uml-sequence-2.png" alt="Interaction diagram" loading="lazy">
-  <figcaption>Interaction diagram.</figcaption>
+  <figcaption>Sequence Diagram - Login/Sign UP</figcaption>
 </figure>
 
 
 <figure class="report-figure">
   <img src="../../pictures/uml-sequence-3.png" alt="Interaction diagram" loading="lazy">
-  <figcaption>Interaction diagram.</figcaption>
+  <figcaption>Sequence Diagram - View Day Log</figcaption>
 </figure>
 
 
 <figure class="report-figure">
   <img src="../../pictures/uml-sequence-4.png" alt="Interaction diagram" loading="lazy">
-  <figcaption>Interaction diagram.</figcaption>
+  <figcaption>Sequence Diagram - View Last 7 Days</figcaption>
 </figure>
 
 
