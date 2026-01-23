@@ -8,7 +8,7 @@ nav_order: 3
 
 ## User stories
 
-- **As a busy eater**, I want to scan a barcode to prefill nutrition values so I can log meals faster.
+- **As a busy eater**, I want to enter a barcode to prefill nutrition values so I can log meals faster.
 - **As a nutrition‑minded user**, I want to log what I ate (with grams) and see daily totals so I can track my intake.
 - **As a returning user**, I want to sign up and log in so my logs are saved across sessions.
 - **As someone reviewing habits**, I want to see the last 7 days of totals so I can spot trends.
