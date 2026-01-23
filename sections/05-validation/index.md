@@ -39,7 +39,7 @@ nav_order: 6
 
 ### System testing
 
-- No automated end-to-end/system tests are implemented yet. Given the Streamlit UI, system tests would likely be browser-driven (e.g., Playwright/Selenium) and aligned with the acceptance criteria in the requirements.
+- No automated end-to-end/system tests are implemented yet. Given the Streamlit UI, system tests would likely be browser-driven and aligned with the acceptance criteria in the requirements.
 - Containers are not used for testing; the CI runs in GitHub Actions with Poetry-managed environments.
 
 ## Acceptance tests (manual)
