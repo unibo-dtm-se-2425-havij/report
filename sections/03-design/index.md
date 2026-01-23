@@ -54,11 +54,12 @@ This chapter describes how the design choices map the requirements into a small,
   - **Entities:** `MealEntry` (entry_id), `DayLog` (day aggregate), `UserProfile` (user_id), `Product` (barcode).
   - **Value objects:** `Nutrients` (kcal/protein/carbs/fat).
   - **Aggregate:** `DayLog` is the aggregate root containing `MealEntry` and enforces basic invariants (e.g., grams > 0).
-- Repositories/services:
-  - **Repositories (ports):** `DayLogRepository`, `UserRepository`.
+- Ports/adapters:
+  - **Repository ports:** `DayLogRepository`, `UserRepository`.
+  - **External service port:** `ProductCatalog` implemented by `OpenFoodFactsCatalog`.
+  - **Adapters:** `SqliteDayLogRepository`, `SqliteUserRepository`. 
   - **Application services:** `MealService`, `ProductService`, `UserService` orchestrate use cases.
   - **Domain services:** none; domain rules are simple validation helpers in `havij/domain/rules.py`.
-  - **External catalog:** `ProductCatalog` port implemented by `OpenFoodFactsCatalog`.
 - Domain events:
   - None explicitly modeled; operations are synchronous with direct persistence.
 

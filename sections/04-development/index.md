@@ -10,10 +10,10 @@ nav_order: 5
 
 Distributed Version Control System (Git and GitHub) was used throughout the project. Although the work was done by a single developer, branches, PRs, and issues were still used to document the workflow, and the local and remote repositories were kept aligned through frequent pull/push operations.
 
-- Branching follows git-flow conventions: `dev` is the integration branch and `main` is the release branch; new work is developed on feature branches (e.g., `feature/manual-meal-entry`) and merged via PRs.
-- Commit messages follow Conventional Commits (`feat`, `chore`, `refactor`, `feat(ui)`, etc.). Releases are automated with semantic-release, producing `chore(release)` commits and updating `CHANGELOG.md`.
-- Pull requests are the standard integration path; examples include PR #6 (feature branch to `dev`) and multiple closed PRs such as #8-#12. CI checks are run in GitHub Actions on PRs.
-- Issues are used to plan and track work (e.g., #1 "Add user to the app" and #2 "CI is failing"), and issue references appear in the changelog (e.g., #3-#5).
+- Branching follows **git-flow conventions**: `dev` is the integration branch and `main` is the release branch; new work is developed on feature branches (e.g., `feature/manual-meal-entry`) and merged via PRs.
+- Commit messages follow **Conventional Commits** (`feat`, `chore`, `refactor`, `feat(ui)`, etc.). Releases are automated with semantic-release, producing `chore(release)` commits and updating `CHANGELOG.md`.
+- **Pull requests** are the standard integration path; examples include PR #6 (feature branch to `dev`) and multiple closed PRs such as #8-#12. CI checks are run in GitHub Actions on PRs.
+- **Issues** are used to plan and track work (e.g., #1 "Add user to the app" and #2 "CI is failing"), and issue references appear in the changelog (e.g., #3-#5).
 - Code reviews are lightweight. Given the single-developer setup, PR reviews were informal, with CI checks serving as the primary quality gate.
 
 ## Implementation details
